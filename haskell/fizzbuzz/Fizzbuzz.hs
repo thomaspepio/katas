@@ -2,10 +2,10 @@ module Fizzbuzz where
 
 fizzbuzz :: Int -> Either String Int
 fizzbuzz n
-    | divisibleBy n 15 = Left "Fizzbuzz"
-    | divisibleBy n 3 = Left "Fizz"
-    | divisibleBy n 5 = Left "Buzz"
+    | divisibleBy 15 n = Left "Fizzbuzz"
+    | divisibleBy 3 n = Left "Fizz"
+    | divisibleBy 5 n = Left "Buzz"
     | otherwise = Right n
 
 divisibleBy :: Int -> Int -> Bool
-divisibleBy number divisor = rem number divisor == 0
+divisibleBy divisor number = rem number divisor == 0
