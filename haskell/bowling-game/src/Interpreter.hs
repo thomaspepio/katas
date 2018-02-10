@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Interpreter
     (
-        makeGame, interpret
+        interpret,
+        Command(..)
     )
 where
 
@@ -10,21 +11,15 @@ import           Game
 import           System.Exit
 import           Text.Read
 
-makeGame :: [Roll] -> Game
-makeGame _ = undefined
+data Command = End | Unknown deriving (Eq, Show)
 
-makeRolls :: Text -> Text -> [Roll]
-makeRolls _ _  = undefined
--- makeRolls "" _ = []
--- makeRolls i "" = []
--- makeRolls i c  = interpret <$> splitOn c i
-
-interpret :: Text -> Maybe Roll
-interpret "x" = Just Strike
-interpret "/" = Just Spare
-interpret "." = Just Miss
+interpret :: Text -> Either Command Roll
+interpret "x"   = Right Strike
+interpret "/"   = Right Spare
+interpret "."   = Right Miss
+interpret "END" = Left End
 interpret s = case read of
-    Just i  -> Just (Reg i)
-    Nothing -> Nothing
+    Just i  -> Right  (Reg i)
+    Nothing -> Left Unknown
     where
         read = readMaybe (unpack s)
