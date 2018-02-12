@@ -10,19 +10,19 @@ spec = describe "The bowling game loop" $ do
 
     describe "An interpreter that translates user inputs into Rolls" $ do
         it "should interpret 'x' as a Strike" $ do
-            interpret "x" `shouldBe` Right Strike
+            interpret "x" `shouldBe` Move Strike
 
         it "should interpret '/' as a Spare" $ do
-            interpret "/" `shouldBe` Right Spare
+            interpret "/" `shouldBe` Move Spare
 
         it "should interpret '.' as a Miss" $ do
-            interpret "." `shouldBe` Right Miss
+            interpret "." `shouldBe` Move Miss
 
         it "should interpret '5' as a Pin" $ do
-            interpret "5" `shouldBe` Right (Reg 5)
+            interpret "5" `shouldBe` Move (Reg 5)
 
         it "should interpret 'END' as a command" $ do
-            interpret "END" `shouldBe` Left End
+            interpret "END" `shouldBe` End
 
         it "should interpret 'foo' as an unknown command" $ do
-            interpret "foo" `shouldBe` Left Unknown
+            interpret "foo" `shouldBe` Unknown
