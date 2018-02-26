@@ -9,16 +9,15 @@ spec = describe "Computing bowling game scores" $ do
 
         describe "base values for scoring rolls" $ do
             it "scores 0 if the player misses" $ do
-                score' Miss `shouldBe` 0
+                scoreThrow Miss `shouldBe` 0
             it "scores the number of pins knocked" $ do
-                score' (Reg 9) `shouldBe` 9
+                scoreThrow (Reg 9) `shouldBe` 9
             it "scores 10 if the player does a spare" $ do
-                score' Spare `shouldBe` 10
+                scoreThrow Spare `shouldBe` 10
             it "scores 10 if the player does a strike" $ do
-                score' Strike `shouldBe` 10
+                scoreThrow Strike `shouldBe` 10
 
         describe "scoring frames" $ do
-
             describe "two frames" $ do
                 it "scores a spare and two rolls (two frames)" $ do
                     score (Game [Reg 1, Spare, Reg 1, Reg 1]) `shouldBe` (11 + 1 + 1)

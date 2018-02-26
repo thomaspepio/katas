@@ -11,7 +11,7 @@ import           Game
 import           System.Exit
 import           Text.Read
 
-data Command = Move Roll | End | Unknown deriving (Eq, Show)
+data Command = Move Throw | End | Unknown deriving (Eq, Show)
 
 interpret :: Text -> Command
 interpret "x"   = Move Strike

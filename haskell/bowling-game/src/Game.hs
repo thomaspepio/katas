@@ -1,24 +1,24 @@
 module Game
     (
-        score, score',
-        Roll(..), Game(..)
+        score, scoreThrow,
+        Throw(..), Game(..)
     )
 where
 
-data Roll = Strike | Spare | Reg Int | Miss deriving (Eq, Show)
-newtype Game = Game [Roll]
+data Throw = Strike | Spare | Reg Int | Miss deriving (Eq, Show)
+newtype Game = Game [Throw]
 
 score :: Game -> Int
 score (Game rs) = case rs of
-    (Strike:Strike:[Strike]) -> 30 -- last frame for a whole strike game
-    (Reg i:Spare:[Reg j])    -> 15 -- last frame for a whole spare game
-    (Strike:x:y:zs)          -> 10 + score' x + score' y + score (Game $ x:y:zs)
-    (x:Spare:y:zs)           -> 10 + score' y + score (Game $ y:zs)
-    (x:ys)                   -> score' x + score (Game ys)
+    (Strike:Strike:[Strike]) -> 30
+    (Reg i:Spare:[Reg j])    -> scoreThrow Spare + scoreThrow (Reg j)
+    (Strike:x:y:zs)          -> scoreThrow Strike + scoreThrow x + scoreThrow y + score (Game $ x:y:zs)
+    (x:Spare:y:zs)           -> scoreThrow Spare + scoreThrow y + score (Game $ y:zs)
+    (x:ys)                   -> scoreThrow x + score (Game ys)
     []                       -> 0
 
-score' :: Roll -> Int
-score' Miss    = 0
-score' (Reg n) = n
-score' Spare   = 10
-score' Strike  = 10
+scoreThrow :: Throw -> Int
+scoreThrow Miss    = 0
+scoreThrow (Reg n) = n
+scoreThrow Spare   = 10
+scoreThrow Strike  = 10
