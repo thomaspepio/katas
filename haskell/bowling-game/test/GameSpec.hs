@@ -28,3 +28,5 @@ spec = describe "Computing bowling game scores" $ do
                 score (Game $ replicate 12 Strike) `shouldBe` 300
             it "almost all rolls are strikes" $ do
                 score (Game $ replicate 10 Strike ++ [Reg 3, Reg 5]) `shouldBe` 281
+            it "almost all rolls are strikes and ends with a spare" $ do
+                score (Game $ replicate 10 Strike ++ [Reg 3, Spare]) `shouldBe` 283
