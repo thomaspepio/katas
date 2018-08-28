@@ -6,7 +6,6 @@ import           Data.HashMap hiding (filter)
 import           Data.Maybe
 import qualified Data.Text as DT
 import           Prelude hiding (lookup)
-import           System.Exit
 
 type RomanNumeral = DT.Text
 
