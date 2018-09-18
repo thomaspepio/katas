@@ -24,8 +24,12 @@ fakeCell :: Cell
 fakeCell = Cell False 0 0
 
 frame :: Board -> Board
-frame = undefined
-    
+frame board = fmap (fmap (\cell -> mutate cell board)) board
+
+mutate :: Cell -> Board -> Cell
+mutate cell board = case cell of
+    (Cell True _ _)  -> actOnLivingCell cell board
+    (Cell False _ _) -> actOnDeadCell cell board
 
 actOnDeadCell :: Cell -> Board -> Cell
 actOnDeadCell = actOnCell (\x -> length x == 3)
