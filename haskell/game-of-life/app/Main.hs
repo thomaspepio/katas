@@ -20,7 +20,7 @@ blinking = [[Cell False 0 0, Cell False 1 0, Cell False 2 0, Cell False 3 0, Cel
            ,[Cell False 0 4, Cell False 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
 
 main :: IO ()
-main = display square
+main = display blinking
     
 display :: Board -> IO ()
 display board = do

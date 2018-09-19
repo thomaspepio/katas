@@ -53,44 +53,44 @@ actOnCell condition (Cell s x y) board =
     in
         if condition aliveNeighbors then (Cell True x y) else (Cell False x y)
 
-minusX :: Int -> Int
-minusX x = x - 1
+left :: Int -> Int
+left x = x - 1
 
-plusX :: Int -> Int
-plusX x = x + 1
+right :: Int -> Int
+right x = x + 1
 
-minusY :: Int -> Int
-minusY y = y - 1
+up :: Int -> Int
+up y = y - 1
 
-plusY :: Int -> Int
-plusY y = y + 1
+down :: Int -> Int
+down y = y + 1
 
 leftNeighbor :: Cell -> Board -> Maybe Cell
-leftNeighbor = neighbor (minusX, id)
+leftNeighbor = neighbor (id, left)
 
 rightNeighbor :: Cell -> Board -> Maybe Cell
-rightNeighbor = neighbor (plusX, id)
+rightNeighbor = neighbor (id, right)
 
 upperLeftNeighbor :: Cell -> Board -> Maybe Cell
-upperLeftNeighbor = neighbor (minusX, minusY)
+upperLeftNeighbor = neighbor (up, left)
 
 upperNeighbor :: Cell -> Board -> Maybe Cell
-upperNeighbor = neighbor (id, minusY)
+upperNeighbor = neighbor (up, id)
 
 upperRightNeighbor :: Cell -> Board -> Maybe Cell
-upperRightNeighbor = neighbor (plusX, minusY)
+upperRightNeighbor = neighbor (up, right)
 
 lowerLeftNeighbor :: Cell -> Board -> Maybe Cell
-lowerLeftNeighbor = neighbor (minusX, plusY)
+lowerLeftNeighbor = neighbor (down, left)
 
 lowerNeighbor :: Cell -> Board -> Maybe Cell
-lowerNeighbor = neighbor (id, plusY)
+lowerNeighbor = neighbor (down, id)
 
 lowerRightNeighbor :: Cell -> Board -> Maybe Cell
-lowerRightNeighbor = neighbor (plusX, plusY)
+lowerRightNeighbor = neighbor (down, right)
 
 neighbor :: TransformationOnCoords -> Cell -> Board -> Maybe Cell
-neighbor (f, g) (Cell s x y) board = do
+neighbor (g, f) (Cell s x y) board = do
     let newX = f x
     let newY = g y
     case (newX < 0 || newY < 0) || (newX >= length board || newY >= length board) of
