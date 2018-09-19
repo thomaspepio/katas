@@ -12,6 +12,12 @@ spec = describe "The Game of Life" $ do
                 ,[Cell True 0 3, Cell True 1 3, Cell True 2 3, Cell False 3 3, Cell False 4 3]
                 ,[Cell True 0 4, Cell True 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
 
+    let blinking = [[Cell False 0 0, Cell False 1 0, Cell False 2 0, Cell False 3 0, Cell False 4 0]
+                   ,[Cell False 0 1, Cell False 1 1, Cell False 2 1, Cell False 3 1, Cell False 4 1]
+                   ,[Cell False 0 2, Cell True 1 2, Cell True 2 2, Cell True 3 2, Cell False 4 2]
+                   ,[Cell False 0 3, Cell False 1 3, Cell False 2 3, Cell False 3 3, Cell False 4 3]
+                   ,[Cell False 0 4, Cell False 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
+
     describe "accessing neihbors of a cell" $ do
         it "finds the left neighbor" $
             leftNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 0 1)
@@ -51,3 +57,11 @@ spec = describe "The Game of Life" $ do
             actOnLivingCell (Cell True 4 2) board `shouldBe` (Cell False 4 2)
         it "a living cell that has more than three alive neighbors dies" $
             actOnLivingCell (Cell True 1 4) board `shouldBe` (Cell False 1 4)
+
+    describe "transitions on boards" $
+        it "should compute oscilating figure(s)" $
+            frame blinking `shouldBe` [[Cell False 0 0, Cell False 1 0, Cell False 2 0, Cell False 3 0, Cell False 4 0]
+                                      ,[Cell False 0 1, Cell False 1 1, Cell True 2 1, Cell False 3 1, Cell False 4 1]
+                                      ,[Cell False 0 2, Cell False 1 2, Cell True 2 2, Cell False 3 2, Cell False 4 2]
+                                      ,[Cell False 0 3, Cell False 1 3, Cell True 2 3, Cell False 3 3, Cell False 4 3]
+                                      ,[Cell False 0 4, Cell False 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
