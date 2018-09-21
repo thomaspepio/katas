@@ -6,62 +6,52 @@ import Test.Hspec
 spec :: Spec
 spec = describe "The Game of Life" $ do
 
-    let board = [[Cell True 0 0, Cell True 1 0, Cell True 2 0, Cell True 3 0, Cell False 4 0]
-                ,[Cell False 0 1, Cell False 1 1, Cell False 2 1, Cell True 3 1, Cell False 4 1]
-                ,[Cell False 0 2, Cell False 1 2, Cell False 2 2, Cell False 3 2, Cell True 4 2]
-                ,[Cell True 0 3, Cell True 1 3, Cell True 2 3, Cell False 3 3, Cell False 4 3]
-                ,[Cell True 0 4, Cell True 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
-
-    let blinking = [[Cell False 0 0, Cell False 1 0, Cell False 2 0, Cell False 3 0, Cell False 4 0]
-                   ,[Cell False 0 1, Cell False 1 1, Cell False 2 1, Cell False 3 1, Cell False 4 1]
-                   ,[Cell False 0 2, Cell True 1 2, Cell True 2 2, Cell True 3 2, Cell False 4 2]
-                   ,[Cell False 0 3, Cell False 1 3, Cell False 2 3, Cell False 3 3, Cell False 4 3]
-                   ,[Cell False 0 4, Cell False 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
+    let board = [ Cell True 0 0, Cell True 1 0, Cell True 2 0, Cell True 3 0
+                , Cell True 3 1, Cell True 4 2, Cell True 0 3, Cell True 1 3
+                , Cell True 2 3, Cell True 0 4, Cell True 1 4 ]
 
     describe "accessing neihbors of a cell" $ do
         it "finds the left neighbor" $
-            leftNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 0 1)
+            leftNeighbor (Cell False 1 1) board `shouldBe` Cell False 0 1
         it "finds the right neighbor" $
-            rightNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 2 1)
+            rightNeighbor (Cell False 1 1) board `shouldBe` Cell False 2 1
         it "finds the upper left neighbor" $
-            upperLeftNeighbor (Cell False 1 1) board `shouldBe` Just (Cell True 0 0)
+            upperLeftNeighbor (Cell False 1 1) board `shouldBe` Cell True 0 0
         it "finds the upper neighbor" $
-            upperNeighbor (Cell False 1 1) board `shouldBe` Just (Cell True 1 0)
+            upperNeighbor (Cell False 1 1) board `shouldBe` Cell True 1 0
         it "finds the upper right neighbor" $
-            upperRightNeighbor (Cell False 1 1) board `shouldBe` Just (Cell True 2 0)
+            upperRightNeighbor (Cell False 1 1) board `shouldBe` Cell True 2 0
         it "finds the lower left neighbor" $
-            lowerLeftNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 0 2)
+            lowerLeftNeighbor (Cell False 1 1) board `shouldBe` Cell False 0 2
         it "finds the lower neighbor" $
-            lowerNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 1 2)
+            lowerNeighbor (Cell False 1 1) board `shouldBe` Cell False 1 2
         it "finds the lower right neighbor" $
-            lowerRightNeighbor (Cell False 1 1) board `shouldBe` Just (Cell False 2 2)
+            lowerRightNeighbor (Cell False 1 1) board `shouldBe` Cell False 2 2
 
-    describe "wrong accesses to neighbors" $ do
-        it "any leftmost cell has no left neighbor" $
-            leftNeighbor (Cell False 0 1) board `shouldBe` Nothing
-        it "any rightmost cell has no right neighbor" $
-            rightNeighbor (Cell True 4 1) board `shouldBe` Nothing
-        it "the first cell has no upper left neighbor" $
-            upperLeftNeighbor (Cell True 0 0) board `shouldBe` Nothing
-        it "the last cell of the first row has no upper right neighbor" $
-            upperRightNeighbor (Cell True 2 0) board `shouldBe` Nothing
-        it "the first cell of the last row has no lower left neighbor" $
-            lowerLeftNeighbor (Cell False 0 2) board `shouldBe` Nothing
-        it "the last cell of the last row has no lower right neighbor" $
-            lowerRightNeighbor (Cell False 3 4) board `shouldBe` Nothing
-        
     describe "rules for living and dying cells" $ do
         it "a dead cell with three living neighbors becomes alive" $
-            actOnDeadCell (Cell False 1 1) board `shouldBe` (Cell True 1 1)
+            actOnCell (Cell False 1 1) board `shouldBe` (Cell True 1 1)
         it "a living cell that has less than two alive neighbors dies" $
-            actOnLivingCell (Cell True 4 2) board `shouldBe` (Cell False 4 2)
+            actOnCell (Cell True 4 2) board `shouldBe` (Cell False 4 2)
         it "a living cell that has more than three alive neighbors dies" $
-            actOnLivingCell (Cell True 1 4) board `shouldBe` (Cell False 1 4)
+            actOnCell (Cell True 1 4) board `shouldBe` (Cell False 1 4)
+        
 
     describe "transitions on boards" $
-        it "should compute oscilating figure(s)" $
-            frame blinking `shouldBe` [[Cell False 0 0, Cell False 1 0, Cell False 2 0, Cell False 3 0, Cell False 4 0]
-                                      ,[Cell False 0 1, Cell False 1 1, Cell True 2 1, Cell False 3 1, Cell False 4 1]
-                                      ,[Cell False 0 2, Cell False 1 2, Cell True 2 2, Cell False 3 2, Cell False 4 2]
-                                      ,[Cell False 0 3, Cell False 1 3, Cell True 2 3, Cell False 3 3, Cell False 4 3]
-                                      ,[Cell False 0 4, Cell False 1 4, Cell False 2 4, Cell False 3 4, Cell False 4 4]]
+        describe "computes oscilating figure(s)" $ do
+
+            let blinking = [ Cell True 0 1, Cell True 1 1, Cell True 2 1 ]
+            it "the blinker" $
+                frame blinking `shouldMatchList` [ Cell True 1 0, Cell True 1 1, Cell True 1 2 ]
+
+            let square = [ Cell True 1 1, Cell True 2 1, Cell True 1 2, Cell True 2 2 ]
+            it "the block" $
+                frame square `shouldMatchList` square
+
+            let beehive = [ Cell True 1 2, Cell True 2 1, Cell True 2 3, Cell True 3 1, Cell True 3 3, Cell True 4 2]
+            it "the beehive" $
+                frame beehive `shouldMatchList` beehive
+            
+            let tub = [ Cell True 1 2, Cell True 2 1, Cell True 2 3, Cell True 3 2 ]
+            it "the tub" $
+                frame tub `shouldMatchList` tub

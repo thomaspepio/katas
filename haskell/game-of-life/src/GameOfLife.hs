@@ -2,7 +2,7 @@ module GameOfLife
     ( 
         Cell(..), Board(..),
         frame,
-        actOnDeadCell, actOnLivingCell,
+        actOnCell,
         leftNeighbor, rightNeighbor,
         upperLeftNeighbor, upperNeighbor, upperRightNeighbor,
         lowerLeftNeighbor, lowerNeighbor, lowerRightNeighbor
@@ -16,42 +16,33 @@ data Cell = Cell { state :: Bool
                  , y :: Int}
     deriving (Show, Eq)
 
-type Board = [[Cell]]
+type Board = [Cell]
 
 type TransformationOnCoords = (Int -> Int, Int -> Int)
 
-fakeCell :: Cell
-fakeCell = Cell False 0 0
-
 frame :: Board -> Board
-frame board = fmap (fmap (\cell -> mutate cell board)) board
+frame board = filter cellLives boardActedOn
+    where
+        allNeighbors = concat (flip neighbors board <$> board)
+        boardAndNeighbors = uniq $ board ++ allNeighbors
+        boardActedOn = fmap (flip actOnCell board) boardAndNeighbors
+        uniq = foldr (\x acc -> if x `elem` acc then acc else x:acc) []
 
-mutate :: Cell -> Board -> Cell
-mutate cell board = case cell of
-    (Cell True _ _)  -> actOnLivingCell cell board
-    (Cell False _ _) -> actOnDeadCell cell board
+actOnCell :: Cell -> Board -> Cell
+actOnCell cell board = case cell of
+    (Cell True x y)  -> if livingNeighbors >= 2 && livingNeighbors <= 3 then (Cell True x y) else (Cell False x y)
+    (Cell False x y) -> if livingNeighbors == 3 then (Cell True x y) else (Cell False x y)
+    where
+        livingNeighbors = length $ filter cellLives (neighbors cell board)
 
-actOnDeadCell :: Cell -> Board -> Cell
-actOnDeadCell = actOnCell (\x -> length x == 3)
+neighbors :: Cell -> Board -> [Cell]
+neighbors cell board = [ upperRightNeighbor cell board, upperNeighbor cell board, upperLeftNeighbor cell board
+                       , leftNeighbor cell board, rightNeighbor cell board
+                       , lowerRightNeighbor cell board, lowerNeighbor cell board, lowerLeftNeighbor cell board ]
 
-actOnLivingCell :: Cell -> Board -> Cell
-actOnLivingCell = actOnCell (\x -> length x >= 2 && length x <= 3)
-
-actOnCell :: ([Cell] -> Bool) -> Cell -> Board -> Cell
-actOnCell condition (Cell s x y) board =
-    let
-        cell = (Cell s x y)
-        neighbors = [fromMaybe fakeCell (upperRightNeighbor cell board)
-                   , fromMaybe fakeCell (upperNeighbor cell board)
-                   , fromMaybe fakeCell (upperLeftNeighbor cell board)
-                   , fromMaybe fakeCell (leftNeighbor cell board)
-                   , fromMaybe fakeCell (rightNeighbor cell board)
-                   , fromMaybe fakeCell (lowerRightNeighbor cell board)
-                   , fromMaybe fakeCell (lowerNeighbor cell board)
-                   , fromMaybe fakeCell (lowerLeftNeighbor cell board)]
-        aliveNeighbors = filter (\(Cell s _ _) -> s) neighbors
-    in
-        if condition aliveNeighbors then (Cell True x y) else (Cell False x y)
+cellLives :: Cell -> Bool
+cellLives (Cell True _ _) = True
+cellLives _               = False
 
 left :: Int -> Int
 left x = x - 1
@@ -65,38 +56,34 @@ up y = y - 1
 down :: Int -> Int
 down y = y + 1
 
-leftNeighbor :: Cell -> Board -> Maybe Cell
+leftNeighbor :: Cell -> Board -> Cell
 leftNeighbor = neighbor (id, left)
 
-rightNeighbor :: Cell -> Board -> Maybe Cell
+rightNeighbor :: Cell -> Board -> Cell
 rightNeighbor = neighbor (id, right)
 
-upperLeftNeighbor :: Cell -> Board -> Maybe Cell
+upperLeftNeighbor :: Cell -> Board -> Cell
 upperLeftNeighbor = neighbor (up, left)
 
-upperNeighbor :: Cell -> Board -> Maybe Cell
+upperNeighbor :: Cell -> Board -> Cell
 upperNeighbor = neighbor (up, id)
 
-upperRightNeighbor :: Cell -> Board -> Maybe Cell
+upperRightNeighbor :: Cell -> Board -> Cell
 upperRightNeighbor = neighbor (up, right)
 
-lowerLeftNeighbor :: Cell -> Board -> Maybe Cell
+lowerLeftNeighbor :: Cell -> Board -> Cell
 lowerLeftNeighbor = neighbor (down, left)
 
-lowerNeighbor :: Cell -> Board -> Maybe Cell
+lowerNeighbor :: Cell -> Board -> Cell
 lowerNeighbor = neighbor (down, id)
 
-lowerRightNeighbor :: Cell -> Board -> Maybe Cell
+lowerRightNeighbor :: Cell -> Board -> Cell
 lowerRightNeighbor = neighbor (down, right)
 
-neighbor :: TransformationOnCoords -> Cell -> Board -> Maybe Cell
-neighbor (g, f) (Cell s x y) board = do
-    let newX = f x
-    let newY = g y
-    case (newX < 0 || newY < 0) || (newX >= length board || newY >= length board) of
-        True  -> Nothing
-        False -> do
-            let candidateCell = board !! newY !! newX
-            case candidateCell == (Cell s x y) of
-                True  -> Nothing
-                False -> Just candidateCell
+neighbor :: TransformationOnCoords -> Cell -> Board -> Cell
+neighbor (g, f) (Cell s x y) = findCell (f x, g y)
+
+findCell :: (Int, Int) -> Board -> Cell
+findCell (x, y) board = case filter (\(Cell s x' y') -> x == x' && y == y') board of
+                            [cell] -> cell
+                            []     -> Cell False x y
